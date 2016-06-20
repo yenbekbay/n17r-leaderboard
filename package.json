@@ -1,0 +1,57 @@
+{
+  "name": "n17r-leaderboard",
+  "version": "1.0.0",
+  "description": "nFactorial Incubator Leaderboard",
+  "scripts": {
+    "dev": "webpack-dev-server --inline --hot --no-info --content-base ./build",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
+    "deploy": "surge build leaderboard.n17r.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/n17r/leaderboard.git"
+  },
+  "author": "Ayan Yenbekbay <ayan.yenb@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/n17r/leaderboard/issues"
+  },
+  "homepage": "https://github.com/n17r/leaderboard",
+  "devDependencies": {
+    "babel-core": "^6.1.21",
+    "babel-loader": "^6.1.0",
+    "babel-plugin-transform-runtime": "^6.1.18",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-runtime": "^6.9.2",
+    "cross-env": "^1.0.5",
+    "css-loader": "^0.23.1",
+    "eslint": "^2.13.0",
+    "eslint-config-airbnb-base": "^3.0.1",
+    "eslint-plugin-html": "^1.5.1",
+    "eslint-plugin-import": "^1.8.1",
+    "json-loader": "^0.5.4",
+    "stylus-loader": "^2.1.1",
+    "surge": "^0.18.0",
+    "vue-hot-reload-api": "^1.2.0",
+    "vue-html-loader": "^1.0.0",
+    "vue-loader": "^8.0.0",
+    "vue-style-loader": "^1.0.0",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.0"
+  },
+  "dependencies": {
+    "animate.css": "^3.5.1",
+    "awesomplete": "^1.1.0",
+    "bulma": "0.0.28",
+    "chart.js": "^2.1.6",
+    "es6-promise": "^3.0.2",
+    "firebase": "^3.0.5",
+    "lodash": "^4.13.1",
+    "moment": "^2.13.0",
+    "pikaday": "^1.4.0",
+    "superagent": "^2.0.0",
+    "vue": "^1.0.8",
+    "vue-router": "^0.7.5",
+    "vue-spinner": "^1.0.2"
+  }
+}
