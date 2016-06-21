@@ -1,17 +1,23 @@
 <template>
   <div class="leaderboard">
     <h1 class="title has-text-centered">{{ title }}</h1>
-    <div class="container">
-      <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
-      <div class="notification is-danger" v-show="error">{{ error }}</div>
-      <div class="notification is-warning" v-show="noData">No data yet</div>
-      <chart :type="'bar'" :data="barChartData" :options="barChartOptions" v-show="dataReady"></chart>
+    <div class="columns">
+      <div class="column is-half is-offset-one-quarter">
+        <p class="control" v-show="!loading || users.length">
+          <input class="input" v-el:name-input type="text" placeholder="Select a different user">
+        </p>
+        <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
+        <div class="notification is-danger" v-show="error">{{ error }}</div>
+        <div class="notification is-warning" v-show="noData">No data yet</div>
+        <chart :type="'bar'" :data="barChartData" :options="barChartOptions" v-show="dataReady"></chart>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import _ from 'lodash';
+import Awesomplete from 'awesomplete';
 import moment from 'moment';
 
 import Chart from './Chart.vue';
@@ -29,6 +35,9 @@ export default {
       title: 'Stats',
       loading: true,
       error: null,
+      users: [],
+      selectedUser: null,
+      awesomplete: null,
       barChartData: {
         labels: [],
         datasets: []
@@ -47,48 +56,98 @@ export default {
       return !this.loading && this.barChartData.labels.length;
     },
     noData() {
-      return !this.loading && !this.barChartData.labels.length;
+      return !this.loading && !this.barChartData.labels.length && !this.error;
     }
   },
   route: {
     data({ to: { params: { username }}}) {
       if (!username) {
-        return { error: 'Please enter a valid username' };
+        return {
+          error: 'Please enter a valid username',
+          loading: false
+        };
       }
 
       return store
         .getUsers()
         .then(users => {
+          this.users = users;
+
           const user = _.find(users, ['name', username]);
           if (!user) {
-            return { error: `No user found with username @${username}` };
+            return {
+              error: `No user found with username @${username}`,
+              loading: false
+            };
           }
 
+          this.selectedUser = user;
           this.title = `Stats for ${user.first_name} ${user.last_name}`;
 
-          return store
-            .fetchUserStats(user.id)
-            .then(stats => ({
-              loading: false,
-              barChartData: {
-                labels: _.map(
-                  stats,
-                  dateStats => moment
-                    .unix(dateStats.timestamp)
-                    .format('MMM D')
-                ),
-                datasets: _.map(_.keys(store.colors), color => ({
-                  label: color,
-                  backgroundColor: store.colors[color],
-                  data: _.map(stats, `points.${color}`)
-                }))
-              }
-            }));
+          this.reload();
         });
     }
   },
-  title(val) {
-    document.title = val;
+  ready() {
+    this.awesomplete = new Awesomplete(this.$els.nameInput);
+
+    document.addEventListener(
+      'awesomplete-selectcomplete',
+      event => {
+        const name = this.$els.nameInput.value.split(' ');
+        const user = _.find(this.users, {
+          'first_name': name[0],
+          'last_name': name[1]
+        });
+        if (user) {
+          this.$route.router.go(`/user/${user.name}`);
+        }
+      },
+      false
+    );
+  },
+  methods: {
+    reload() {
+      if (!this.selectedUser) return;
+
+      this.loading = true;
+      this.error = null;
+
+      store
+        .fetchUserStats(this.selectedUser.id)
+        .then(stats => {
+          this.loading = false;
+          this.barChartData = {
+            labels: _.map(
+              stats,
+              dateStats => moment
+                .unix(dateStats.timestamp)
+                .format('MMM D')
+            ),
+            datasets: _.map(_.keys(store.colors), color => ({
+              label: color,
+              backgroundColor: store.colors[color],
+              data: _.map(stats, `points.${color}`)
+            }))
+          };
+        });
+    }
+  },
+  watch: {
+    title(title) {
+      document.title = title;
+    },
+    users(users) {
+      this.awesomplete.list = _.map(
+        users,
+        user => `${user.first_name} ${user.last_name}`
+      );
+    }
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.control
+  margin-bottom: 30px
+</style>
