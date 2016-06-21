@@ -1,17 +1,19 @@
 <template>
   <div class="leaderboard">
     <h1 class="title has-text-centered">{{ title }}<img src="/calendar-icon.svg" alt="Select a date" v-el:calendar-icon></h1>
-    <div class="container">
-      <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
-      <div class="notification is-warning" v-show="noData">No data yet</div>
-      <div class="columns is-desktop">
-        <div class="column">
-          <chart :type="'horizontalBar'" :data="barChartData" :options="barChartOptions" :height="barChartHeight" v-show="dataReady"></chart>
-        </div>
-        <div class="column">
-          <h4 class="title has-text-centered is-4" v-show="dataReady">Stats</h4>
-          <chart :type="'doughnut'" :data="doughnutChartData" :options="doughnutChartOptions" v-show="dataReady"></chart>
-        </div>
+    <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
+    <div class="columns is-desktop">
+      <div class="column is-half is-offset-one-quarter">
+        <div class="notification is-warning" v-show="noData">No data yet</div>
+      </div>
+    </div>
+    <div class="columns is-desktop">
+      <div class="column">
+        <chart :type="'horizontalBar'" :data="barChartData" :options="barChartOptions" :height="barChartHeight" v-show="dataReady"></chart>
+      </div>
+      <div class="column">
+        <h4 class="title has-text-centered is-4" v-show="dataReady">Stats</h4>
+        <chart :type="'doughnut'" :data="doughnutChartData" :options="doughnutChartOptions" v-show="dataReady"></chart>
       </div>
     </div>
   </div>
@@ -113,10 +115,8 @@ export default {
       field: this.$els.calendarIcon,
       firstDay: 1,
       onSelect: date => {
-        this.interval = [moment(date).unix(), moment(date).unix()];
-        this.title = `Leaderboard for ${moment(date).format('dddd, MMMM D')}`;
-
-        this.reload();
+        const momentDate = moment(date);
+        this.$route.router.go(`/${moment(date).format('YYYY/MM/DD')}`);
       }
     });
   },
@@ -141,11 +141,9 @@ export default {
       this.update();
     },
     update() {
-      if (this.updating) {
-        return;
-      } else {
-        this.updating = true;
-      }
+      if (this.updating || !this.interval) return;
+
+      this.updating = true;
 
       store
         .fetchDateLeaderboard(this.interval)
@@ -183,8 +181,10 @@ export default {
         });
     }
   },
-  title(val) {
-    document.title = val;
+  watch: {
+    title(title) {
+      document.title = title;
+    }
   }
 }
 </script>

@@ -64,14 +64,14 @@ export default {
     }
   },
   watch: {
-    data(val) {
+    data(data) {
       this.$nextTick(() => {
-        this.chart.data.datasets = val.datasets;
-        this.chart.data.labels = val.labels;
+        this.chart.data.datasets = data.datasets;
+        this.chart.data.labels = data.labels;
         this.chart.update();
       });
     },
-    height(val) {
+    height(height) {
       this.create();
     }
   }

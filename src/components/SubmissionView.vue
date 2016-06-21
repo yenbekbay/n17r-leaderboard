@@ -12,7 +12,7 @@
         <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
         <div class="notification is-danger" v-show="error">{{ error }}</div>
         <div class="notification is-success" v-show="successMessage">{{ successMessage }}</div>
-        <p class="control" v-show="selectedUser">
+        <p class="control" v-show="!loading && selectedUser">
           <label class="checkbox">
             <input type="checkbox" v-el:bronze-radio name="bronze">
             Bronze
@@ -26,7 +26,7 @@
             Gold
           </label>
         </p>
-        <p class="control" v-show="selectedUser">
+        <p class="control" v-show="!loading && selectedUser">
           <button class="button is-primary" :class="{ 'is-loading': submitting }" v-on:click="submit">Submit</button>
         </p>
       </div>
@@ -68,10 +68,7 @@ export default {
         .getUsers()
         .then(users => ({
           loading: false,
-          users: _.map(
-            users,
-            user => `${user.first_name} ${user.last_name}`
-          )
+          users
         }))
     }
   },
@@ -82,34 +79,37 @@ export default {
       onSelect: date => {
         this.timestamp = moment(date).unix();
         this.title = `Submission for ${moment(date).format('dddd, MMMM D')}`;
-        if (this.selectedUser) {
-          this.updateUserPoints();
-        }
+        this.updateUserPoints();
       }
     });
     this.datePicker.setDate(new Date());
 
     document.addEventListener(
       'awesomplete-selectcomplete',
-      this.updateUserPoints,
+      event => {
+        const name = this.$els.nameInput.value.split(' ');
+        this.selectedUser = _.find(this.users, {
+          'first_name': name[0],
+          'last_name': name[1]
+        });
+        this.updateUserPoints();
+      },
       false
     );
   },
   methods: {
     updateUserPoints() {
+      if (!this.selectedUser || !this.timestamp) return;
+
       this.loading = true;
-      this.selectedUser = null;
       this.successMessage = null;
       this.error = null;
 
-      const userName = this.$els.nameInput.value.split(' ');
-
       store
-        .fetchUserPoints(userName, this.timestamp)
+        .fetchUserPoints(this.selectedUser.id, this.timestamp)
         .then(
           stats => {
             this.loading = false;
-            this.selectedUser = stats.user;
             this.$els.bronzeRadio.checked = stats.bronze;
             this.$els.silverRadio.checked = stats.silver;
             this.$els.goldRadio.checked = stats.gold;
@@ -122,6 +122,8 @@ export default {
         );
     },
     submit(event) {
+      if (!this.selectedUser || !this.timestamp) return;
+
       this.submitting = true;
       this.toggleInputs(false);
 
@@ -155,11 +157,16 @@ export default {
     }
   },
   watch: {
-    title(val) {
-      document.title = val;
+    title(title) {
+      document.title = title;
     },
-    users(val) {
-      this.awesomplete = new Awesomplete(this.$els.nameInput, { list: val });
+    users(users) {
+      this.awesomplete = new Awesomplete(this.$els.nameInput, {
+        list: _.map(
+          users,
+          user => `${user.first_name} ${user.last_name}`
+        )
+      });
     }
   }
 }
@@ -172,8 +179,4 @@ export default {
   text-align: center
 .v-spinner, .checkbox
   padding: 10px
-</style>
-<style lang="stylus">
-.awesomplete
-  width: 100%
 </style>

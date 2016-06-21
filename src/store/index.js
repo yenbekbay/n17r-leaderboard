@@ -155,27 +155,17 @@ store.fetchUserStats = userId => database
     .value()
   );
 
-store.fetchUserPoints = (name, timestamp) => store
-  .getUsers()
-  .then(users => {
-    const user = _.find(users, {
-      first_name: name[0],
-      last_name: name[1]
-    });
-
-    return database
-      .ref(`points/${user.id}-${timestamp}`)
-      .once('value')
-      .then(snapshot => _.assign(
-        {
-          user,
-          gold: false,
-          silver: false,
-          bronze: false
-        },
-        snapshot.val()
-      ));
-  });
+store.fetchUserPoints = (userId, timestamp) => database
+  .ref(`points/${userId}-${timestamp}`)
+  .once('value')
+  .then(snapshot => _.assign(
+    {
+      gold: false,
+      silver: false,
+      bronze: false
+    },
+    snapshot.val()
+  ));
 
 store.submitUserPoints = (user, timestamp, points) => database
   .ref(`points/${user.id}-${timestamp}`)
