@@ -4,10 +4,10 @@
     <div class="columns">
       <div class="column is-half is-offset-one-quarter">
         <p class="control">
-          <input class="input" v-el:date-input type="text" placeholder="Date">
+          <input class="input" v-el:date-input type="text" placeholder="Select a date">
         </p>
         <p class="control" v-show="!loading || users.length">
-          <input class="input" v-el:name-input type="text" placeholder="User name">
+          <input class="input" v-el:name-input type="text" placeholder="Enter a name">
         </p>
         <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
         <div class="notification is-danger" v-show="error">{{ error }}</div>
