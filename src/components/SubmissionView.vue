@@ -9,7 +9,7 @@
         <p class="control" v-show="!loading || users.length">
           <input class="input" v-el:name-input type="text" placeholder="User name">
         </p>
-        <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'" :size="size"></pulse-loader>
+        <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
         <div class="notification is-danger" v-show="error">{{ error }}</div>
         <div class="notification is-success" v-show="successMessage">{{ successMessage }}</div>
         <p class="control" v-show="selectedUser">

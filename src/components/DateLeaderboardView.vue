@@ -2,13 +2,15 @@
   <div class="leaderboard">
     <h1 class="title has-text-centered">{{ title }}</h1>
     <div class="container">
+      <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
+      <div class="notification is-warning" v-show="noData">No data yet</div>
       <div class="columns is-desktop">
         <div class="column">
-          <chart :type="'horizontalBar'" :data="barChartData" :options="barChartOptions" :height="barChartHeight"></chart>
+          <chart :type="'horizontalBar'" :data="barChartData" :options="barChartOptions" :height="barChartHeight" v-show="dataReady"></chart>
         </div>
         <div class="column">
-          <h4 class="title has-text-centered is-4">Stats</h4>
-          <chart :type="'doughnut'" :data="doughnutChartData" :options="doughnutChartOptions"></chart>
+          <h4 class="title has-text-centered is-4" v-show="dataReady">Stats</h4>
+          <chart :type="'doughnut'" :data="doughnutChartData" :options="doughnutChartOptions" v-show="dataReady"></chart>
         </div>
       </div>
     </div>
@@ -20,16 +22,19 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import Chart from './Chart.vue';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
 import store from '../store';
 
 export default {
   name: 'DateLeaderboardView',
   components: {
-    Chart
+    Chart,
+    PulseLoader
   },
   data() {
     return {
       title: 'Leaderboard',
+      loading: true,
       updating: false,
       interval: [store.today],
       barChartData: {
@@ -50,6 +55,14 @@ export default {
       },
       doughnutChartOptions: {}
     };
+  },
+  computed: {
+    dataReady() {
+      return !this.loading && this.barChartData.labels.length;
+    },
+    noData() {
+      return !this.loading && !this.barChartData.labels.length;
+    }
   },
   route: {
     data({ to: { path, params: { year, month, day }}}) {
@@ -110,6 +123,7 @@ export default {
       store
         .fetchDateLeaderboard(this.interval)
         .then(leaderboard => {
+          this.loading = false;
           this.barChartData = {
             labels: _.map(
               leaderboard,
