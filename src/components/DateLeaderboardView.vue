@@ -1,6 +1,6 @@
 <template>
   <div class="leaderboard">
-    <h1 class="title has-text-centered">{{ title }}</h1>
+    <h1 class="title has-text-centered">{{ title }}<img src="/calendar-icon.svg" alt="Select a date" v-el:calendar-icon></h1>
     <div class="container">
       <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
       <div class="notification is-warning" v-show="noData">No data yet</div>
@@ -20,6 +20,7 @@
 <script>
 import _ from 'lodash';
 import moment from 'moment';
+import Pikaday from 'pikaday';
 
 import Chart from './Chart.vue';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue';
@@ -37,6 +38,7 @@ export default {
       loading: true,
       updating: false,
       interval: [store.today],
+      datePicker: null,
       barChartData: {
         labels: [],
         datasets: []
@@ -103,8 +105,20 @@ export default {
           break;
       }
 
-      this.update();
+      this.reload();
     }
+  },
+  ready() {
+    this.datePicker = new Pikaday({
+      field: this.$els.calendarIcon,
+      firstDay: 1,
+      onSelect: date => {
+        this.interval = [moment(date).unix(), moment(date).unix()];
+        this.title = `Leaderboard for ${moment(date).format('dddd, MMMM D')}`;
+
+        this.reload();
+      }
+    });
   },
   created() {
     store.on('leaderboard-updated', this.update);
@@ -113,6 +127,19 @@ export default {
     store.removeListener('leaderboard-updated', this.update);
   },
   methods: {
+    reload() {
+      this.barChartData = {
+        labels: [],
+        datasets: []
+      };
+      this.doughnutChartData = {
+        labels: [],
+        datasets: []
+      };
+      this.loading = true;
+
+      this.update();
+    },
     update() {
       if (this.updating) {
         return;
@@ -161,3 +188,8 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.title img
+  margin-left: 10px
+</style>
