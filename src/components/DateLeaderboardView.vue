@@ -97,9 +97,9 @@ export default {
           this.title = 'Leaderboard for the past week';
           break;
         default:
-          const date = new Date(year, month - 1, day);
-          this.interval = [date.getTime(), date.getTime()];
-          this.title = `Leaderboard for ${moment(date).format('dddd, MMMM D')}`;
+          const date = moment({ year, month: month - 1, day });
+          this.interval = [date.unix(), date.unix()];
+          this.title = `Leaderboard for ${date.format('dddd, MMMM D')}`;
           break;
       }
 
