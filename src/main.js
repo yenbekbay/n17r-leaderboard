@@ -33,6 +33,7 @@ router.map(_.transform(
   ),
   {
     [submissionPath]: { component: SubmissionView },
+    '/user/search': { component: UserLeaderboardView },
     '/user/:username': { component: UserLeaderboardView }
   }
 ));

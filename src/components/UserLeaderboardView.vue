@@ -4,7 +4,7 @@
     <div class="columns">
       <div class="column is-half is-offset-one-quarter">
         <p class="control" v-show="!loading || users.length">
-          <input class="input" v-el:name-input type="text" placeholder="Select a different user">
+          <input class="input" v-el:name-input type="text" placeholder="Enter a name">
         </p>
         <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
         <div class="notification is-danger" v-show="error">{{ error }}</div>
@@ -32,7 +32,7 @@ export default {
   },
   data() {
     return {
-      title: 'Stats',
+      title: 'Stats for a student',
       loading: true,
       error: null,
       users: [],
@@ -56,28 +56,38 @@ export default {
       return !this.loading && this.barChartData.labels.length;
     },
     noData() {
-      return !this.loading && !this.barChartData.labels.length && !this.error;
+      return !this.loading && !this.barChartData.labels.length &&
+        this.selectedUser && !this.error;
     }
   },
   route: {
-    data({ to: { params: { username }}}) {
-      if (!username) {
+    data({ to: { path, params: { username }}}) {
+      this.selectedUser = null;
+      this.title = 'Stats for a student';
+
+      if (!username && path !== '/user/search') {
         return {
-          error: 'Please enter a valid username',
-          loading: false
+          loading: false,
+          error: 'Please enter a valid username'
         };
       }
 
       return store
         .getUsers()
         .then(users => {
-          this.users = users;
+          if (!users.length) {
+            this.users = users;
+          }
+
+          if (path === '/user/search') {
+            return { loading: false   };
+          }
 
           const user = _.find(users, ['name', username]);
           if (!user) {
             return {
-              error: `No user found with username @${username}`,
-              loading: false
+              loading: false,
+              error: `No user found with username @${username}`
             };
           }
 
