@@ -65,7 +65,7 @@ export default {
       return !this.loading && this.barChartData.labels.length;
     },
     noData() {
-      return !this.loading && !this.barChartData.labels.length;
+      return !this.loading && !this.barChartData.labels.length && this.interval;
     }
   },
   route: {
