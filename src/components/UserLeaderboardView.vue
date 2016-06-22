@@ -116,12 +116,23 @@ export default {
       false
     );
   },
+  created() {
+    store.on('leaderboard-updated', this.update);
+  },
+  destroyed() {
+    store.removeListener('leaderboard-updated', this.update);
+  },
   methods: {
     reload() {
-      if (!this.selectedUser) return;
-
       this.loading = true;
       this.error = null;
+
+      this.update();
+    },
+    update() {
+      if (this.updating || !this.selectedUser) return;
+
+      this.updating = true;
 
       store
         .fetchUserStats(this.selectedUser.id)
@@ -140,6 +151,7 @@ export default {
               data: _.map(stats, `points.${color}`)
             }))
           };
+          this.updating = false;
         });
     }
   },
