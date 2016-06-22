@@ -12,7 +12,7 @@
         <pulse-loader :class="'has-text-centered'" :loading="loading" :color="'#1fc8db'"></pulse-loader>
         <div class="notification is-danger" v-show="error">{{ error }}</div>
         <div class="notification is-success" v-show="successMessage">{{ successMessage }}</div>
-        <p class="control" v-show="!loading && selectedUser">
+        <p class="control" v-show="!loading && selectedUser && !successMessage">
           <label class="checkbox">
             <input type="checkbox" v-el:bronze-radio name="bronze">
             Bronze
@@ -26,7 +26,7 @@
             Gold
           </label>
         </p>
-        <p class="control" v-show="!loading && selectedUser">
+        <p class="control" v-show="!loading && selectedUser && !successMessage">
           <button class="button is-primary" :class="{ 'is-loading': submitting }" v-on:click="submit">Submit</button>
         </p>
       </div>
@@ -141,11 +141,9 @@ export default {
             this.successMessage = `Points for ` +
               `${this.selectedUser.first_name} ` +
               `${this.selectedUser.last_name} have been submitted.`;
-            this.selectedUser = null;
           },
           err => {
             this.submitting = false;
-            this.selectedUser = null;
             this.error = err.message;
           }
         );
