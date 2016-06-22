@@ -38,7 +38,7 @@ router.map(_.transform(
   }
 ));
 router.redirect({
-  '*': '/today'
+  '*': '/month'
 });
 
 router.start(App, 'app');
