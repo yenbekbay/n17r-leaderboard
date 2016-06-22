@@ -118,6 +118,7 @@ store.fetchDateLeaderboard = interval => store
           total: stats.points.gold + stats.points.silver + stats.points.bronze
         }
       }))
+      .filter('points.total')
       .sortBy('user.first_name')
       .reverse()
       .sortBy('points.total')
@@ -151,6 +152,7 @@ store.fetchUserStats = userId => database
         total: stats.points.gold + stats.points.silver + stats.points.bronze
       }
     }))
+    .filter('points.total')
     .sortBy('timestamp')
     .value()
   );
