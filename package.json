@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "webpack-dev-server --inline --hot --no-info --content-base ./build",
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules",
-    "deploy": "surge build leaderboard.n17r.com"
+    "deploy": "npm run build && surge ./build"
   },
   "repository": {
     "type": "git",
