@@ -86,12 +86,12 @@ export default {
           ];
           this.title = 'Leaderboard for yesterday';
           break;
-        case '/month':
+        case '/alltime':
           this.interval = [
-            store.today.clone().subtract(1, 'M').unix(),
+            moment('2016-06-01').unix(),
             store.today.unix()
           ];
-          this.title = 'Leaderboard for the past month';
+          this.title = 'All-time leaderboard';
           break;
         case '/week':
           this.interval = [

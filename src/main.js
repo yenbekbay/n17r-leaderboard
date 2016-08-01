@@ -19,7 +19,7 @@ const router = new Router({ transitionOnLoad: true });
 const validIntervals = [
   '/today',
   '/yesterday',
-  '/month',
+  '/alltime',
   '/week',
   '/:year/:month/:day'
 ];
@@ -38,7 +38,7 @@ router.map(_.transform(
   }
 ));
 router.redirect({
-  '*': '/month'
+  '*': '/alltime'
 });
 
 router.start(App, 'app');
